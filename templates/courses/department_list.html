@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-building me-2 text-primary"></i>Departments</h1>
+        <p class="subtitle mb-0">Academic departments and their heads</p>
+    </div>
+    <a href="{% url 'courses:course_list' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Name</th><th>Code</th><th>Head</th><th>Courses</th><th>Description</th></tr></thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td class="fw-semibold">{{ dept.name }}</td>
+                        <td><span class="badge bg-info-soft">{{ dept.code }}</span></td>
+                        <td>{% if dept.head %}{{ dept.head.user.get_full_name }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                        <td><span class="badge bg-primary-soft">{{ dept.courses.count }}</span></td>
+                        <td class="text-muted">{{ dept.description|default:"-"|truncatewords:10 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No departments defined.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

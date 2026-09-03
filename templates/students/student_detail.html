@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }} - Student Details{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-person-circle me-2 text-primary"></i>Student Details</h1>
+        <p class="subtitle mb-0">View and manage student information</p>
+    </div>
+    <a href="{% url 'students:student_list' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card text-center mb-3">
+            <div class="card-body py-4">
+                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center text-white fw-bold" style="width:96px;height:96px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);font-size:2rem;">
+                    {{ student.user.first_name|slice:":1"|upper }}{{ student.user.last_name|slice:":1"|upper }}
+                </div>
+                <h4 class="mb-1">{{ student.user.get_full_name|default:student.user.email }}</h4>
+                <p class="text-muted mb-3"><span class="badge bg-primary-soft">{{ student.student_id }}</span></p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="mailto:{{ student.user.email }}" class="btn btn-sm btn-light"><i class="bi bi-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person-vcard me-2"></i>Personal Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted fw-normal">Date of Birth</dt>
+                    <dd class="col-7 fw-semibold">{{ student.date_of_birth|default:"-" }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Grade Level</dt>
+                    <dd class="col-7 fw-semibold">{{ student.grade_level|default:"-" }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Enrolled</dt>
+                    <dd class="col-7 fw-semibold">{{ student.enrollment_date }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Parent</dt>
+                    <dd class="col-7 fw-semibold">{{ student.parent_guardian|default:"-" }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Parent Phone</dt>
+                    <dd class="col-7 fw-semibold">{{ student.parent_phone|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        {% if user.is_admin or user.is_superuser %}
+        <div class="mb-3 d-flex gap-2 flex-wrap">
+            <a href="{% url 'students:student_edit' student.pk %}" class="btn btn-dark"><i class="bi bi-pencil me-1"></i>Edit</a>
+            <a href="{% url 'students:student_delete' student.pk %}" class="btn btn-light text-danger"><i class="bi bi-trash me-1"></i>Delete</a>
+        </div>
+        {% endif %}
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-soft"><i class="bi bi-calendar-check"></i></div>
+                    <div class="stat-value">{{ attendance_percentage }}%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-soft"><i class="bi bi-graph-up"></i></div>
+                    <div class="stat-value">{{ student.get_average_marks|default:"-" }}{% if student.get_average_marks %}%{% endif %}</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-book me-2"></i>Enrolled Courses</span>
+                <a href="{% url 'grades:student_results' student.pk %}" class="btn btn-sm btn-dark"><i class="bi bi-graph-up me-1"></i>View Results</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Course Code</th><th>Course Name</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td><span class="badge bg-primary-soft">{{ enrollment.course.course_code }}</span></td>
+                                <td><a href="{% url 'courses:course_detail' enrollment.course.pk %}" class="text-decoration-none fw-semibold text-dark">{{ enrollment.course.name }}</a></td>
+                                <td>{% if enrollment.status == 'active' %}<span class="badge bg-success-soft">Active</span>{% else %}<span class="badge bg-secondary-soft">{{ enrollment.get_status_display }}</span>{% endif %}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center text-muted py-4">Not enrolled in any courses.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Recent Marks</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Course</th><th>Exam</th><th>Marks</th><th>Grade</th></tr></thead>
+                        <tbody>
+                            {% for mark in marks %}
+                            <tr>
+                                <td class="fw-semibold">{{ mark.course.name }}</td>
+                                <td><span class="badge bg-secondary-soft">{{ mark.get_exam_type_display }}</span></td>
+                                <td>{{ mark.marks_obtained }}/{{ mark.max_marks }} <span class="text-muted small">({{ mark.get_percentage }}%)</span></td>
+                                <td><span class="grade-badge grade-{{ mark.calculate_grade }}">{{ mark.calculate_grade }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-4">No marks recorded.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

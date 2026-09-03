@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Profile - Student Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>My Profile</h1>
+        <p class="subtitle mb-0">Manage your account information</p>
+    </div>
+    <a href="{% url 'core:dashboard' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back to Dashboard</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.first_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.email|slice:":1"|upper }}{% endif %}
+            </div>
+            <h4 class="mb-1">{{ user.get_full_name|default:user.email }}</h4>
+            <p class="mb-3" style="color: #cbd5e1;">{{ user.get_role_display_name }}</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <div class="px-3">
+                    <i class="bi bi-envelope me-1"></i>
+                    <small>{{ user.email }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person-vcard me-2"></i>Contact Information</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    {% if user.phone %}<dt class="col-5 text-muted fw-normal">Phone</dt><dd class="col-7 fw-semibold">{{ user.phone }}</dd>{% endif %}
+                    {% if user.date_of_birth %}<dt class="col-5 text-muted fw-normal">Birthday</dt><dd class="col-7 fw-semibold">{{ user.date_of_birth }}</dd>{% endif %}
+                    {% if user.address %}<dt class="col-5 text-muted fw-normal">Address</dt><dd class="col-7 fw-semibold">{{ user.address }}</dd>{% endif %}
+                    <dt class="col-5 text-muted fw-normal">Member Since</dt><dd class="col-7 fw-semibold">{{ user.date_joined|date:"M d, Y" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Account Details</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted fw-normal">Email</dt>
+                    <dd class="col-sm-8 fw-semibold">{{ user.email }}</dd>
+                    <dt class="col-sm-4 text-muted fw-normal">First Name</dt>
+                    <dd class="col-sm-8 fw-semibold">{{ user.first_name|default:"-" }}</dd>
+                    <dt class="col-sm-4 text-muted fw-normal">Last Name</dt>
+                    <dd class="col-sm-8 fw-semibold">{{ user.last_name|default:"-" }}</dd>
+                    <dt class="col-sm-4 text-muted fw-normal">Role</dt>
+                    <dd class="col-sm-8"><span class="badge bg-primary-soft">{{ user.get_role_display_name }}</span></dd>
+                    <dt class="col-sm-4 text-muted fw-normal">Account Status</dt>
+                    <dd class="col-sm-8">{% if user.is_active %}<span class="badge bg-success-soft">Active</span>{% else %}<span class="badge bg-danger-soft">Inactive</span>{% endif %}</dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if user.is_student %}
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-mortarboard me-2"></i>Student Information</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="text-muted small">Student ID</div>
+                        <div class="fw-bold fs-5">{{ user.student_profile.student_id }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Grade Level</div>
+                        <div class="fw-bold fs-5">{{ user.student_profile.grade_level|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Enrollment Date</div>
+                        <div class="fw-semibold">{{ user.student_profile.enrollment_date }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Attendance</div>
+                        <div class="fw-semibold">{{ user.student_profile.get_attendance_percentage }}%</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Parent/Guardian</div>
+                        <div class="fw-semibold">{{ user.student_profile.parent_guardian|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Parent Phone</div>
+                        <div class="fw-semibold">{{ user.student_profile.parent_phone|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user.is_teacher %}
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-person-badge me-2"></i>Teacher Information</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="text-muted small">Employee ID</div>
+                        <div class="fw-bold fs-5">{{ user.teacher_profile.employee_id }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Department</div>
+                        <div class="fw-semibold">{{ user.teacher_profile.department|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Qualification</div>
+                        <div class="fw-semibold">{{ user.teacher_profile.qualification|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Hire Date</div>
+                        <div class="fw-semibold">{{ user.teacher_profile.hire_date|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Report - {{ course.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-bar-chart-line me-2 text-primary"></i>Attendance Report</h1>
+        <p class="subtitle mb-0">Course: <strong>{{ course.name }}</strong></p>
+    </div>
+    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-list-check"></i></div>
+            <div class="stat-value">{{ total_records }}</div>
+            <div class="stat-label">Total Records</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-check2-circle"></i></div>
+            <div class="stat-value text-success">{{ present_count }}</div>
+            <div class="stat-label">Present</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger-soft"><i class="bi bi-x-circle"></i></div>
+            <div class="stat-value text-danger">{{ absent_count }}</div>
+            <div class="stat-label">Absent</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-clock-history"></i></div>
+            <div class="stat-value text-warning">{{ late_count }}</div>
+            <div class="stat-label">Late</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-graph-up me-2"></i>Overall Attendance Rate</span>
+        <span class="fw-bold fs-5">{{ overall_percentage }}%</span>
+    </div>
+    <div class="card-body">
+        <div class="progress" style="height: 18px;">
+            <div class="progress-bar {% if overall_percentage >= 75 %}bg-success{% elif overall_percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ overall_percentage }}%">{{ overall_percentage }}%</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="bi bi-people me-2"></i>Student-wise Attendance</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Student ID</th><th>Name</th><th>Total Days</th><th>Present</th><th>Attendance %</th></tr></thead>
+                <tbody>
+                    {% for stat in student_stats %}
+                    <tr>
+                        <td><span class="badge bg-primary-soft">{{ stat.student.student_id }}</span></td>
+                        <td class="fw-semibold"><a href="{% url 'students:student_detail' stat.student.pk %}" class="text-decoration-none text-dark">{{ stat.student.user.get_full_name }}</a></td>
+                        <td>{{ stat.total_days }}</td>
+                        <td class="text-success fw-semibold">{{ stat.present_days }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px; min-width: 80px;">
+                                    <div class="progress-bar {% if stat.percentage >= 75 %}bg-success{% elif stat.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ stat.percentage }}%"></div>
+                                </div>
+                                <span class="fw-semibold" style="min-width: 50px;">{{ stat.percentage }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No attendance data.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

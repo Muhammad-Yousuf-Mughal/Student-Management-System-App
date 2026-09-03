@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Enroll Student in {{ course.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-person-plus me-2 text-primary"></i>Enroll Student</h1>
+        <p class="subtitle mb-0">Add a student to <strong>{{ course.name }}</strong></p>
+    </div>
+    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student</label>
+                    {{ form.student }}
+                    {% if form.student.errors %}<div class="text-danger small mt-1">{{ form.student.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Course</label>
+                    {{ form.course }}
+                    {% if form.course.errors %}<div class="text-danger small mt-1">{{ form.course.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}<div class="text-danger small mt-1">{{ form.status.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Grade</label>
+                    {{ form.grade }}
+                    {% if form.grade.errors %}<div class="text-danger small mt-1">{{ form.grade.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Enroll Student</button>
+                <a href="{% url 'courses:bulk_enroll' course.pk %}" class="btn btn-light">Bulk Enroll Instead</a>
+                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

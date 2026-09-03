@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Courses - Student Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-book-fill me-2 text-primary"></i>Courses</h1>
+        <p class="subtitle mb-0">Manage courses, teachers, and enrollments</p>
+    </div>
+    {% if user.is_admin or user.is_superuser %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'courses:department_list' %}" class="btn btn-light"><i class="bi bi-building me-1"></i>Departments</a>
+        <a href="{% url 'courses:course_add' %}" class="btn btn-dark"><i class="bi bi-plus-lg me-1"></i>Add Course</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ request.GET.q }}" class="form-control border-start-0" placeholder="Search by code or name...">
+                <button type="submit" class="btn btn-dark px-4">Search</button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Course Name</th>
+                        <th>Teacher</th>
+                        <th>Department</th>
+                        <th>Students</th>
+                        <th>Credits</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><span class="badge bg-primary-soft">{{ course.course_code }}</span></td>
+                        <td class="fw-semibold"><a href="{% url 'courses:course_detail' course.pk %}" class="text-decoration-none text-dark">{{ course.name }}</a></td>
+                        <td>{{ course.teacher.user.get_full_name|default:"-" }}</td>
+                        <td>{% if course.department %}<span class="badge bg-secondary-soft">{{ course.department }}</span>{% else %}-{% endif %}</td>
+                        <td><span class="badge bg-info-soft">{{ course.enrolled_students_count }}</span></td>
+                        <td>{{ course.credits }}</td>
+                        <td>{% if course.is_active %}<span class="badge bg-success-soft">Active</span>{% else %}<span class="badge bg-secondary-soft">Inactive</span>{% endif %}</td>
+                        <td class="text-end">
+                            <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-sm btn-light" title="View"><i class="bi bi-eye"></i></a>
+                            {% if user.is_admin or user.is_superuser %}
+                            <a href="{% url 'courses:course_edit' course.pk %}" class="btn btn-sm btn-light" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'courses:course_delete' course.pk %}" class="btn btn-sm btn-light text-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center text-muted py-5">No courses found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

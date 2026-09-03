@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}{% if student %}Edit Student{% else %}Add Student{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-person-plus me-2 text-primary"></i>{% if student %}Edit Student{% else %}Add New Student{% endif %}</h1>
+        <p class="subtitle mb-0">{% if student %}Update student information{% else %}Create a new student account{% endif %}</p>
+    </div>
+    <a href="{% url 'students:student_list' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        {% if student %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Account</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="text" class="form-control" value="{{ student.user.email }}" readonly disabled>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" value="{{ student.user.get_full_name }}" readonly disabled>
+                </div>
+            </div>
+            <hr class="my-4">
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Student Details</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student ID</label>
+                    {{ form.student_id }}
+                    {% if form.student_id.errors %}<div class="text-danger small mt-1">{{ form.student_id.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}<div class="text-danger small mt-1">{{ form.date_of_birth.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Grade Level</label>
+                    {{ form.grade_level }}
+                    {% if form.grade_level.errors %}<div class="text-danger small mt-1">{{ form.grade_level.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Parent / Guardian</label>
+                    {{ form.parent_guardian }}
+                    {% if form.parent_guardian.errors %}<div class="text-danger small mt-1">{{ form.parent_guardian.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Parent Phone</label>
+                    {{ form.parent_phone }}
+                    {% if form.parent_phone.errors %}<div class="text-danger small mt-1">{{ form.parent_phone.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Update Student</button>
+                <a href="{% url 'students:student_list' %}" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+        {% else %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Account Information</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>
+                    {{ registration_form.first_name }}
+                    {% if registration_form.first_name.errors %}<div class="text-danger small mt-1">{{ registration_form.first_name.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>
+                    {{ registration_form.last_name }}
+                    {% if registration_form.last_name.errors %}}<div class="text-danger small mt-1">{{ registration_form.last_name.errors }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Email Address</label>
+                    {{ registration_form.email }}
+                    {% if registration_form.email.errors %}}<div class="text-danger small mt-1">{{ registration_form.email.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <hr class="my-4">
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Student Details</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student ID</label>
+                    {{ registration_form.student_id }}
+                    {% if registration_form.student_id.errors %}}<div class="text-danger small mt-1">{{ registration_form.student_id.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date of Birth</label>
+                    {{ registration_form.date_of_birth }}
+                    {% if registration_form.date_of_birth.errors %}}<div class="text-danger small mt-1">{{ registration_form.date_of_birth.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Grade Level</label>
+                    {{ registration_form.grade_level }}
+                    {% if registration_form.grade_level.errors %}}<div class="text-danger small mt-1">{{ registration_form.grade_level.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Parent / Guardian</label>
+                    {{ registration_form.parent_guardian }}
+                    {% if registration_form.parent_guardian.errors %}}<div class="text-danger small mt-1">{{ registration_form.parent_guardian.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Parent Phone</label>
+                    {{ registration_form.parent_phone }}
+                    {% if registration_form.parent_phone.errors %}}<div class="text-danger small mt-1">{{ registration_form.parent_phone.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="bi bi-info-circle me-1"></i> A default password <strong>Student@123</strong> will be assigned. The student can change it after logging in.
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Create Student</button>
+                <a href="{% url 'students:student_list' %}" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

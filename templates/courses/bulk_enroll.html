@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Bulk Enroll - {{ course.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-people me-2 text-primary"></i>Bulk Enroll Students</h1>
+        <p class="subtitle mb-0">Select multiple students to enroll in <strong>{{ course.name }}</strong></p>
+    </div>
+    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% if students %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted mb-0">Select students to enroll:</p>
+                <div class="form-check">
+                    <input type="checkbox" id="select-all" class="form-check-input">
+                    <label class="form-check-label" for="select-all">Select All</label>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th style="width:40px;"></th><th>Student ID</th><th>Name</th><th>Email</th></tr></thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td><input type="checkbox" name="students" value="{{ student.id }}" class="form-check-input student-check"></td>
+                            <td><span class="badge bg-primary-soft">{{ student.student_id }}</span></td>
+                            <td class="fw-semibold">{{ student.user.get_full_name }}</td>
+                            <td class="text-muted small">{{ student.user.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Enroll Selected Students</button>
+                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light">Cancel</a>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">All students are already enrolled in this course.</p>
+                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light">Back to Course</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('select-all')?.addEventListener('change', function() {
+    document.querySelectorAll('.student-check').forEach(cb => cb.checked = this.checked);
+});
+</script>
+{% endblock %}

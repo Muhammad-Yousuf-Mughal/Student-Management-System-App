@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-clipboard-check me-2 text-primary"></i>Mark Attendance</h1>
+        <p class="subtitle mb-0">Record daily attendance for students</p>
+    </div>
+    <a href="{% url 'attendance:list' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-md-5">
+                <label class="form-label">Select Course</label>
+                <select name="course" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select Course --</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}" {% if selected_course.id == c.id %}selected{% endif %}>{{ c.course_code }} - {{ c.name }} ({{ c.enrolled_students_count }} students)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" value="{{ form.date.value|default:"" }}" class="form-control" id="date-input">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-light w-100" onclick="setToday()">Use Today</button>
+            </div>
+        </form>
+
+        {% if selected_course %}
+        <hr>
+        <form method="post" id="attendance-form">
+            {% csrf_token %}
+            <input type="hidden" name="course" value="{{ selected_course.id }}">
+            <input type="hidden" name="date" id="hidden-date" value="">
+            <div class="row g-2 mb-3">
+                <div class="col-md-9">
+                    <label class="form-label">Remarks (optional)</label>
+                    <input type="text" name="remarks" class="form-control" placeholder="Optional remarks...">
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="button" class="btn btn-sm btn-success flex-fill" onclick="markAll('present')">All Present</button>
+                    <button type="button" class="btn btn-sm btn-light flex-fill" onclick="markAll('absent')">All Absent</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Student ID</th><th>Student Name</th><th style="width:200px;">Status</th></tr></thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td><span class="badge bg-primary-soft">{{ student.student_id }}</span><input type="hidden" name="student_id" value="{{ student.id }}"></td>
+                            <td class="fw-semibold">{{ student.user.get_full_name }}</td>
+                            <td>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="present" selected>Present</option>
+                                    <option value="absent">Absent</option>
+                                    <option value="late">Late</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted py-4">No students enrolled in this course.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if students %}
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-save me-1"></i>Save Attendance</button>
+                <a href="{% url 'attendance:list' %}" class="btn btn-light">Cancel</a>
+            </div>
+            {% endif %}
+        </form>
+        {% else %}
+        <div class="alert alert-info"><i class="bi bi-info-circle me-1"></i>Please select a course to mark attendance.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function setToday() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date-input').value = today;
+    document.getElementById('hidden-date').value = today;
+}
+function markAll(status) {
+    document.querySelectorAll('select[name="status"]').forEach(s => s.value = status);
+}
+document.getElementById('date-input')?.addEventListener('change', function() {
+    document.getElementById('hidden-date').value = this.value;
+});
+window.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date-input');
+    if (dateInput && dateInput.value) {
+        document.getElementById('hidden-date').value = dateInput.value;
+    }
+});
+</script>
+{% endblock %}

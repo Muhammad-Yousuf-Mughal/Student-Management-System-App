@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Marks & Grades{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>Marks & Grades</h1>
+        <p class="subtitle mb-0">Manage student marks and academic grades</p>
+    </div>
+    {% if user.is_admin or user.is_superuser or user.is_teacher %}
+    <a href="{% url 'grades:mark_add' %}" class="btn btn-dark"><i class="bi bi-plus-lg me-1"></i>Add Marks</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <select name="course" class="form-select">
+                    <option value="">All Courses</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}" {% if request.GET.course == c.id|stringformat:"s" %}selected{% endif %}>{{ c.course_code }} - {{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search student...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100">Filter</button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Student</th><th>Course</th><th>Exam</th><th>Date</th><th>Marks</th><th>%</th><th>Grade</th><th class="text-end">Actions</th></tr></thead>
+                <tbody>
+                    {% for mark in marks %}
+                    <tr>
+                        <td class="fw-semibold"><a href="{% url 'students:student_detail' mark.student.pk %}" class="text-decoration-none text-dark">{{ mark.student.user.get_full_name }}</a></td>
+                        <td>{{ mark.course.name }}</td>
+                        <td><span class="badge bg-secondary-soft">{{ mark.get_exam_type_display }}</span></td>
+                        <td class="text-muted small">{{ mark.exam_date|default:"-" }}</td>
+                        <td class="fw-semibold">{{ mark.marks_obtained }}/{{ mark.max_marks }}</td>
+                        <td>{{ mark.get_percentage }}%</td>
+                        <td><span class="grade-badge grade-{{ mark.calculate_grade }}">{{ mark.calculate_grade }}</span></td>
+                        <td class="text-end">
+                            {% if user.is_admin or user.is_superuser or user.is_teacher %}
+                            <a href="{% url 'grades:mark_edit' mark.pk %}" class="btn btn-sm btn-light" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'grades:mark_delete' mark.pk %}" class="btn btn-sm btn-light text-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center text-muted py-5">No marks recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

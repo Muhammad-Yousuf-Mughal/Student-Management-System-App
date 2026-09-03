@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Quick Entry - {{ course.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-pencil-square me-2 text-primary"></i>Quick Entry</h1>
+        <p class="subtitle mb-0">Bulk enter marks for <strong>{{ course.name }}</strong></p>
+    </div>
+    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Exam Type</label>
+                <select name="exam_type" class="form-select" onchange="this.form.submit()">
+                    <option value="midterm" {% if exam_type == 'midterm' %}selected{% endif %}>Midterm</option>
+                    <option value="final" {% if exam_type == 'final' %}selected{% endif %}>Final</option>
+                    <option value="quiz" {% if exam_type == 'quiz' %}selected{% endif %}>Quiz</option>
+                    <option value="assignment" {% if exam_type == 'assignment' %}selected{% endif %}>Assignment</option>
+                    <option value="project" {% if exam_type == 'project' %}selected{% endif %}>Project</option>
+                    <option value="other" {% if exam_type == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+        </form>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Student ID</th><th>Name</th><th>Marks Obtained</th><th>Max Marks</th></tr></thead>
+                    <tbody>
+                        {% for item in students %}
+                        <tr>
+                            <td><span class="badge bg-primary-soft">{{ item.student.student_id }}</span><input type="hidden" name="student_id" value="{{ item.student.id }}"></td>
+                            <td class="fw-semibold">{{ item.student.user.get_full_name }}</td>
+                            <td><input type="number" name="marks_obtained" value="{{ item.existing_marks }}" step="0.01" min="0" class="form-control" style="max-width: 140px;"></td>
+                            <td><input type="number" name="max_marks" value="{{ item.existing_max }}" step="0.01" min="0" class="form-control" style="max-width: 140px;"></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No students enrolled.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if students %}
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-save me-1"></i>Save Marks</button>
+                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-light">Cancel</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

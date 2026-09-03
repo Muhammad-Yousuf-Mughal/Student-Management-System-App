@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Results - {{ student.user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-mortarboard me-2 text-primary"></i>Academic Results</h1>
+        <p class="subtitle mb-0">Student: <strong>{{ student.user.get_full_name }}</strong> ({{ student.student_id }})</p>
+    </div>
+    <a href="{% url 'students:student_detail' student.pk %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-123"></i></div>
+            <div class="stat-value">{{ total_obtained }}/{{ total_max }}</div>
+            <div class="stat-label">Total Marks</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-percent"></i></div>
+            <div class="stat-value">{{ overall_percentage }}%</div>
+            <div class="stat-label">Overall Percentage</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-award"></i></div>
+            <div class="stat-value"><span class="grade-badge grade-{{ overall_grade }}" style="font-size:1.3rem; padding:0.4em 0.7em;">{{ overall_grade }}</span></div>
+            <div class="stat-label">Overall Grade</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="bi bi-list-check me-2"></i>Subject-wise Marks</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Course</th><th>Exam</th><th>Date</th><th>Marks</th><th>%</th><th>Grade</th></tr></thead>
+                <tbody>
+                    {% for stat in marks %}
+                    <tr>
+                        <td class="fw-semibold">{{ stat.mark.course.name }}</td>
+                        <td><span class="badge bg-secondary-soft">{{ stat.mark.get_exam_type_display }}</span></td>
+                        <td class="text-muted small">{{ stat.mark.exam_date|default:"-" }}</td>
+                        <td class="fw-semibold">{{ stat.mark.marks_obtained }}/{{ stat.mark.max_marks }}</td>
+                        <td>{{ stat.percentage }}%</td>
+                        <td><span class="grade-badge grade-{{ stat.grade }}">{{ stat.grade }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">No marks recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

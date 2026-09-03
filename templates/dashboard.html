@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Student Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle mb-0">Welcome back, {{ request.user.get_full_name|default:request.user.email }}</p>
+    </div>
+    <span class="badge bg-primary-soft fs-6 px-3 py-2">{{ request.user.get_role_display_name }}</span>
+</div>
+
+{% if dashboard_type == 'admin' %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-person-badge-fill"></i></div>
+            <div class="stat-value">{{ total_teachers }}</div>
+            <div class="stat-label">Total Teachers</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-book-fill"></i></div>
+            <div class="stat-value">{{ total_courses }}</div>
+            <div class="stat-label">Active Courses</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-person-check-fill"></i></div>
+            <div class="stat-value">{{ total_enrollments }}</div>
+            <div class="stat-label">Active Enrollments</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clipboard-data me-2"></i>Overall Attendance Rate</span>
+                <span class="fw-bold text-primary">{{ attendance_rate }}%</span>
+            </div>
+            <div class="card-body">
+                <div class="progress" style="height: 14px;">
+                    <div class="progress-bar {% if attendance_rate >= 75 %}bg-success{% elif attendance_rate >= 50 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ attendance_rate }}%" aria-valuenow="{{ attendance_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Recent Student Registrations</div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for student in recent_students %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'students:student_detail' student.pk %}" class="text-decoration-none fw-semibold text-dark">{{ student.user.get_full_name|default:student.user.email }}</a>
+                            <div class="text-muted small">{{ student.user.email }}</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary-soft">{{ student.student_id }}</span>
+                            <div class="text-muted small mt-1">{{ student.grade_level }}</div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted py-4">No recent students</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif dashboard_type == 'teacher' %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-warning-soft"><i class="bi bi-book-fill"></i></div>
+            <div class="stat-value">{{ courses|length }}</div>
+            <div class="stat-label">My Courses</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-value">{{ enrolled_students }}</div>
+            <div class="stat-label">Enrolled Students</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-clipboard-data"></i></div>
+            <div class="stat-value">{{ attendance_rate }}%</div>
+            <div class="stat-label">Attendance Rate</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="stat-value">{{ avg_score }}%</div>
+            <div class="stat-label">Average Score</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="bi bi-collection me-2"></i>My Courses</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Students</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td><span class="badge bg-primary-soft">{{ course.course_code }}</span></td>
+                        <td class="fw-semibold">{{ course.name }}</td>
+                        <td>{{ course.enrolled_students_count }}</td>
+                        <td>{{ course.department|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">No courses assigned.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% elif dashboard_type == 'student' %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary-soft"><i class="bi bi-book-fill"></i></div>
+            <div class="stat-value">{{ courses|length }}</div>
+            <div class="stat-label">My Courses</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-info-soft"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-value">{{ attendance_rate }}%</div>
+            <div class="stat-label">Attendance Rate</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon bg-success-soft"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="stat-value">{{ avg_marks }}%</div>
+            <div class="stat-label">Average Score</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-collection me-2"></i>My Courses</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Teacher</th>
+                        <th>Credits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in courses %}
+                    <tr>
+                        <td><span class="badge bg-primary-soft">{{ enrollment.course.course_code }}</span></td>
+                        <td class="fw-semibold">{{ enrollment.course.name }}</td>
+                        <td>{{ enrollment.course.teacher.user.get_full_name|default:"-" }}</td>
+                        <td>{{ enrollment.course.credits }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">Not enrolled in any courses.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if recent_marks %}
+<div class="card">
+    <div class="card-header"><i class="bi bi-clock-history me-2"></i>Recent Marks</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Exam Type</th>
+                        <th>Marks</th>
+                        <th>Percentage</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mark in recent_marks %}
+                    <tr>
+                        <td class="fw-semibold">{{ mark.course.name }}</td>
+                        <td><span class="badge bg-secondary-soft">{{ mark.get_exam_type_display }}</span></td>
+                        <td>{{ mark.marks_obtained }}/{{ mark.max_marks }}</td>
+                        <td>{{ mark.get_percentage }}%</td>
+                        <td><span class="grade-badge grade-{{ mark.calculate_grade }}">{{ mark.calculate_grade }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

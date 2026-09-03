@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Attendance - Student Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-calendar-check-fill me-2 text-primary"></i>Attendance Records</h1>
+        <p class="subtitle mb-0">View and manage student attendance</p>
+    </div>
+    {% if user.is_admin or user.is_superuser or user.is_teacher %}
+    <a href="{% url 'attendance:mark' %}" class="btn btn-dark"><i class="bi bi-clipboard-check me-1"></i>Mark Attendance</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <select name="course" class="form-select">
+                    <option value="">All Courses</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}" {% if request.GET.course == c.id|stringformat:"s" %}selected{% endif %}>{{ c.course_code }} - {{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date" value="{{ request.GET.date }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search student...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100">Filter</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Date</th><th>Student</th><th>Course</th><th>Status</th><th>Remarks</th></tr></thead>
+                <tbody>
+                    {% for att in attendances %}
+                    <tr>
+                        <td class="fw-semibold">{{ att.date }}</td>
+                        <td><a href="{% url 'students:student_detail' att.student.pk %}" class="text-decoration-none text-dark fw-semibold">{{ att.student.user.get_full_name }}</a></td>
+                        <td><a href="{% url 'courses:course_detail' att.course.pk %}" class="text-decoration-none text-dark">{{ att.course.name }}</a></td>
+                        <td>
+                            {% if att.status == 'present' %}<span class="badge bg-success-soft"><span class="status-dot present"></span>Present</span>
+                            {% elif att.status == 'absent' %}<span class="badge bg-danger-soft"><span class="status-dot absent"></span>Absent</span>
+                            {% else %}<span class="badge bg-warning-soft"><span class="status-dot late"></span>Late</span>{% endif %}
+                        </td>
+                        <td class="text-muted small">{{ att.remarks|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-5">No attendance records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

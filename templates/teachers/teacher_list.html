@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Teachers - Student Management System{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-person-badge-fill me-2 text-primary"></i>Teachers</h1>
+        <p class="subtitle mb-0">Manage teaching staff and their assignments</p>
+    </div>
+    {% if user.is_admin or user.is_superuser %}
+    <a href="{% url 'teachers:teacher_add' %}" class="btn btn-dark"><i class="bi bi-plus-lg me-1"></i>Add Teacher</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ request.GET.q }}" class="form-control border-start-0" placeholder="Search by name, email, or employee ID...">
+                <button type="submit" class="btn btn-dark px-4">Search</button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Qualification</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td><span class="badge bg-info-soft">{{ teacher.employee_id }}</span></td>
+                        <td>
+                            <a href="{% url 'teachers:teacher_detail' teacher.pk %}" class="text-decoration-none fw-semibold text-dark d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:32px;height:32px;background:linear-gradient(135deg,#06b6d4,#3b82f6);font-size:0.75rem;">
+                                    {{ teacher.user.first_name|slice:":1"|upper }}{{ teacher.user.last_name|slice:":1"|upper }}
+                                </div>
+                                {{ teacher.user.get_full_name|default:teacher.user.email }}
+                            </a>
+                        </td>
+                        <td class="text-muted small">{{ teacher.user.email }}</td>
+                        <td>{% if teacher.department %}<span class="badge bg-secondary-soft">{{ teacher.department }}</span>{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                        <td class="text-muted">{{ teacher.qualification|default:"-" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'teachers:teacher_detail' teacher.pk %}" class="btn btn-sm btn-light" title="View"><i class="bi bi-eye"></i></a>
+                            {% if user.is_admin or user.is_superuser %}
+                            <a href="{% url 'teachers:teacher_edit' teacher.pk %}" class="btn btn-sm btn-light" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'teachers:teacher_delete' teacher.pk %}" class="btn btn-sm btn-light text-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-5">No teachers found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

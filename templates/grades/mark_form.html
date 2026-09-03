@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{% if mark %}Edit Marks{% else %}Add Marks{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1><i class="bi bi-pencil-square me-2 text-primary"></i>{% if mark %}Edit Marks{% else %}Add Marks{% endif %}</h1>
+        <p class="subtitle mb-0">{% if mark %}Update existing marks{% else %}Record new marks for a student{% endif %}</p>
+    </div>
+    <a href="{% url 'grades:mark_list' %}" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student</label>
+                    {{ form.student }}
+                    {% if form.student.errors %}<div class="text-danger small mt-1">{{ form.student.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Course</label>
+                    {{ form.course }}
+                    {% if form.course.errors %}<div class="text-danger small mt-1">{{ form.course.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Exam Type</label>
+                    {{ form.exam_type }}
+                    {% if form.exam_type.errors %}<div class="text-danger small mt-1">{{ form.exam_type.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Exam Date</label>
+                    {{ form.exam_date }}
+                    {% if form.exam_date.errors %}<div class="text-danger small mt-1">{{ form.exam_date.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-4"></div>
+                <div class="col-md-6">
+                    <label class="form-label">Marks Obtained</label>
+                    {{ form.marks_obtained }}
+                    {% if form.marks_obtained.errors %}<div class="text-danger small mt-1">{{ form.marks_obtained.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Maximum Marks</label>
+                    {{ form.max_marks }}
+                    {% if form.max_marks.errors %}<div class="text-danger small mt-1">{{ form.max_marks.errors }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-save me-1"></i>{% if mark %}Update{% else %}Save{% endif %} Marks</button>
+                <a href="{% url 'grades:mark_list' %}" class="btn btn-light">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
