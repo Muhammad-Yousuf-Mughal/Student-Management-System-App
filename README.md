@@ -1,5 +1,7 @@
 # Student Management System (Django)
 
+[Open the live LMS](https://student-management-system-app-production.up.railway.app/)
+
 A complete web-based Student Management System built with Django that allows educational institutions to manage students, teachers, courses, attendance, and academic records through a centralized platform.
 
 ## Features
@@ -151,6 +153,15 @@ python test_smoke.py
 ## Deployment (Railway)
 
 This repository includes `railway.json` for the Railway build and start commands.
+
+### Admin Login
+
+Use these seeded credentials to access the administrator dashboard:
+
+```text
+Email: admin@school.com
+Password: admin123
+```
 
 1. In Railway, create a new project and deploy the GitHub repository.
 2. Add a PostgreSQL database to the project.
